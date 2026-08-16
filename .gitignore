@@ -1,0 +1,11 @@
+# Build-Ausgaben
+bin/
+obj/
+publish/
+
+# IDE
+.vs/
+.vscode/
+
+# Beispiel-/Demo-Bilder (groß, nicht Teil des Quellcodes)
+Beispiel Bilder/
