@@ -58,6 +58,14 @@ Zwei GitHub-Actions-Workflows unter `.github/workflows/`:
 - **Neues Release auslösen**: `git tag vX.Y.Z && git push origin vX.Y.Z`. Kein automatisches Versionsbumping — der User/Claude entscheidet bewusst, wann ein Tag gesetzt wird.
 - `permissions: contents: write` ist im Workflow nötig, damit der Standard-`GITHUB_TOKEN` Releases erstellen darf.
 
+## Lizenzierung
+
+- Eigener Code: MIT (`LICENSE`, Copyright Rainer Batz).
+- `THIRD-PARTY-NOTICES.txt` ist eine **1:1-Kopie** von `Notice.txt` aus dem installierten `Magick.NET-Q8-AnyCPU`-NuGet-Paket (`~/.nuget/packages/magick.net-q8-anycpu/<version>/Notice.txt`). Bei einem Versions-Update von Magick.NET diese Datei neu kopieren, nicht manuell pflegen — sie deckt alle ~38 gebündelten nativen Bibliotheken ab (aom, libjpeg-turbo, zlib, etc.) und ist die maßgebliche Quelle, nicht diese CLAUDE.md.
+- Wird auch als Release-Asset mit ausgeliefert (`release.yml`), da die ImageMagick-Lizenz explizit verlangt, den Lizenztext bei jeder Weitergabe beizulegen.
+- Recherche-Ergebnis (Stand Magick.NET 14.16.0 / ImageMagick 7.1.2-29): Magick.NET selbst = Apache 2.0. ImageMagick-Kern = eigene "ImageMagick License" (Apache-artig, permissiv, GPLv3-kompatibel, verlangt nur Attribution + Lizenzkopie bei Weitergabe, kein Copyleft für den eigenen Code). Die für HEIC/HEVC-Decoding tatsächlich genutzten Bibliotheken `libheif` und `libde265` sind **LGPLv3** — als dynamisch geladene native DLLs eingebunden (auch im Single-File-Publish, dort zur Laufzeit in einen Temp-Ordner extrahiert, nicht statisch einkompiliert), daher greift LGPL-Copyleft nicht auf den eigenen Code durch. Keine reinen GPL-Komponenten gefunden (Notice.txt nach "GNU GENERAL PUBLIC LICENSE" ohne "Lesser" durchsucht — keine Treffer).
+- HEVC-Patente sind ein separates Thema von der Software-Lizenz (Copyright vs. Patent). Dazu ein bewusst zurückhaltender Disclaimer im README (Abschnitt „Lizenz“) statt eigener Rechtsprüfung — praktisches Risiko für ein kostenloses, nicht-kommerzielles Einzeltool wird als sehr gering eingeschätzt (kein bekannter Präzedenzfall gegen vergleichbare Open-Source-Tools wie ffmpeg/VLC/libheif selbst), aber keine Garantie gegeben.
+
 ## Testdaten / Beispieldaten
 
 - **`heiconvert.Tests/TestData/`**: synthetische Konformitätsdateien aus [nokiatech/heif_conformance](https://github.com/nokiatech/heif_conformance) — schnell, deterministisch, aber CGI-gerendert (keine echten Fotos), daher nur für automatisierte Tests, nicht als User-Demo gedacht.

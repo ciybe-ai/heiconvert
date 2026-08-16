@@ -99,3 +99,11 @@ git push origin v1.0.0
 ```
 
 Der Fortschritt lässt sich unter [Actions](https://github.com/ciybe-ai/heiconvert/actions) verfolgen, das fertige Release erscheint danach unter [Releases](https://github.com/ciybe-ai/heiconvert/releases).
+
+## Lizenz
+
+Der Code dieses Projekts steht unter der [MIT-Lizenz](LICENSE).
+
+heiconvert nutzt [Magick.NET](https://github.com/dlemstra/Magick.NET) (Apache License 2.0), das wiederum [ImageMagick](https://imagemagick.org/) (ImageMagick License) sowie eine Reihe weiterer nativer Bibliotheken bündelt — u. a. `libheif` und `libde265` für das HEIC/HEVC-Decoding (beide LGPLv3). Vollständige Lizenztexte aller gebündelten Komponenten stehen in [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt).
+
+**Hinweis zu HEVC-Patenten**: HEIC-Dateien sind meist mit HEVC/H.265 komprimiert, einer patentbelasteten Technik, deren Patente von mehreren Firmen über Patentpools (u. a. MPEG LA, Access Advance) verwaltet werden. heiconvert implementiert selbst keinen Codec, sondern nutzt dafür die offenen Bibliotheken `libheif`/`libde265` (wie z. B. auch ffmpeg oder VLC). Es wird keine Zusicherung gemacht, dass die Nutzung dieser Bibliotheken durch bestehende Patentlizenzen abgedeckt ist — die Nutzung erfolgt auf eigenes Risiko.

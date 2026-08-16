@@ -59,6 +59,7 @@ jobs:
           mkdir -p release-assets
           cp "publish-selfcontained/heiconvert.exe" "release-assets/heiconvert-${{ steps.version.outputs.version }}-win-x64-selfcontained.exe"
           cp "publish-framework-dependent/heiconvert.exe" "release-assets/heiconvert-${{ steps.version.outputs.version }}-win-x64-framework-dependent.exe"
+          cp "THIRD-PARTY-NOTICES.txt" "release-assets/THIRD-PARTY-NOTICES.txt"
 
       - name: GitHub Release erstellen
         env:
@@ -68,5 +69,6 @@ jobs:
           gh release create "$GITHUB_REF_NAME" \
             "release-assets/heiconvert-${{ steps.version.outputs.version }}-win-x64-selfcontained.exe" \
             "release-assets/heiconvert-${{ steps.version.outputs.version }}-win-x64-framework-dependent.exe" \
+            "release-assets/THIRD-PARTY-NOTICES.txt" \
             --title "heiconvert $GITHUB_REF_NAME" \
             --generate-notes
