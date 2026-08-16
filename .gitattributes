@@ -1,0 +1,12 @@
+# Alle Textdateien im Repo einheitlich mit LF speichern - unabhängig vom
+# core.autocrlf des jeweiligen Rechners. Verhindert CRLF/LF-Warnungen bei git add/commit.
+* text=auto eol=lf
+
+# Binärdateien explizit ausschließen (kein Zeilenenden-/Diff-Handling)
+*.heic binary
+*.heif binary
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.exe binary
+*.pdb binary
