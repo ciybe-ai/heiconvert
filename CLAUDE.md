@@ -4,7 +4,7 @@ Kontext für Claude Code bei der Arbeit an diesem Repository.
 
 ## Projektüberblick
 
-`heiconvert` ist ein self-contained Windows-CLI-Tool (.NET 8), das HEIC/HEIF-Bilder rekursiv nach JPEG konvertiert. Primärer Anwendungsfall: Drag & Drop eines Ordners oder einer Bilddatei auf `heiconvert.exe`. Zielgruppe ist ein einzelner Endanwender (kein Team, kein CI/CD, kein Git-Repo — dies ist bewusst kein `git init`-Projekt).
+`heiconvert` ist ein Windows-CLI-Tool (.NET 8), das HEIC/HEIF-Bilder rekursiv nach JPEG konvertiert. Primärer Anwendungsfall: Drag & Drop eines Ordners oder einer Bilddatei auf `heiconvert.exe`. Zielgruppe ist ein einzelner Endanwender. Quellcode liegt im **privaten** GitHub-Repo `ciybe-ai/heiconvert` (siehe `[[github_repo]]`-Memory für Details); Releases mit fertigen EXEs werden automatisiert über GitHub Actions erstellt (siehe Abschnitt „CI/CD & Releases“).
 
 ## Architektur
 
@@ -46,6 +46,17 @@ dotnet publish heiconvert.csproj -c Release -r win-x64 --self-contained true -p:
 - Ergebnis: eine ~46 MB `heiconvert.exe` + `.pdb` (Debug-Symbole, kann ignoriert/gelöscht werden), läuft ohne installiertes .NET.
 - Nach jedem `publish` wird die EXE zusätzlich manuell auf den Desktop kopiert (`C:\Users\Rainer Batz\Desktop\heiconvert.exe`) — das ist die Version, die der User tatsächlich per Drag & Drop benutzt. **Nach jeder funktionalen Änderung an `Program.cs`/`HeicConverter.cs` daran denken, neu zu publishen und die Desktop-Kopie zu aktualisieren**, sonst testet/nutzt der User eine veraltete Version.
 - Encoding-Fix: `Console.OutputEncoding = Encoding.UTF8` am Programmstart (in `try`/`catch (IOException)`, falls die Ausgabe umgeleitet ist) — ohne das werden deutsche Umlaute in der eigenständigen EXE als Mojibake dargestellt (conhost.exe nutzt sonst eine nicht-UTF8-Codepage).
+- Es gibt **zwei** Publish-Varianten, beide werden bei jedem Release gebaut (siehe unten): `--self-contained true` (~46 MB, kein .NET nötig) und `--self-contained false` (~27 MB, braucht installierte .NET-8-Runtime auf dem Zielrechner). Bei `--self-contained false` ist `IncludeNativeLibrariesForSelfExtract=true` weiterhin nötig, da Magicks native Lib nicht Teil der Shared Runtime ist.
+
+## CI/CD & Releases
+
+Zwei GitHub-Actions-Workflows unter `.github/workflows/`:
+
+- **`ci.yml`** — läuft bei jedem Push/PR auf `master`: `dotnet test` gegen `heiconvert.Tests`. Gibt dem User bei jedem Commit sichtbares grünes/rotes Status-Feedback.
+- **`release.yml`** — läuft bei Push eines Tags im Format `vX.Y.Z` (Muster `v*.*.*`). Zwei Jobs: `test` (identisch zu CI) und `release` (`needs: test`, läuft also **nur wenn die Tests grün sind**). Der `release`-Job baut beide Publish-Varianten, benennt sie versioniert (`heiconvert-<version>-win-x64-{selfcontained,framework-dependent}.exe`) und erstellt via `gh release create` ein GitHub Release mit beiden EXEs als Assets. Bewusst `gh` CLI statt einer Marketplace-Action verwendet (kein Vertrauen in Drittanbieter-Actions nötig, `gh` ist auf GitHub-hosted Runnern vorinstalliert).
+- Versionsnummer wird zur Build-Zeit aus `GITHUB_REF_NAME` (dem Tag-Namen minus `v`-Präfix) abgeleitet und per `-p:Version=` an `dotnet publish` durchgereicht — nicht manuell im `.csproj` pflegen (dort steht nur ein Platzhalter-Default `1.0.0`).
+- **Neues Release auslösen**: `git tag vX.Y.Z && git push origin vX.Y.Z`. Kein automatisches Versionsbumping — der User/Claude entscheidet bewusst, wann ein Tag gesetzt wird.
+- `permissions: contents: write` ist im Workflow nötig, damit der Standard-`GITHUB_TOKEN` Releases erstellen darf.
 
 ## Testdaten / Beispieldaten
 

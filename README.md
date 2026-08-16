@@ -4,11 +4,18 @@ Ein einfacher, eigenständiger Windows-Konverter, der HEIC/HEIF-Bilder (das Form
 
 ## Schnellstart
 
-1. `heiconvert.exe` von deinem Desktop nehmen.
+1. Aktuelle EXE von der [Releases-Seite](https://github.com/ciybe-ai/heiconvert/releases) herunterladen (siehe unten, welche Variante).
 2. Einen Ordner oder eine oder mehrere Bilddateien per Drag & Drop auf die EXE ziehen.
 3. Fertig — die JPEGs landen direkt neben den Originaldateien.
 
-Kein .NET, keine Installation, keine weiteren Dateien nötig — die EXE ist vollständig eigenständig (self-contained).
+### Welche Variante herunterladen?
+
+Jedes Release enthält zwei EXE-Dateien:
+
+| Datei | Größe | Voraussetzung |
+|---|---|---|
+| `heiconvert-<Version>-win-x64-selfcontained.exe` | ~46 MB | **Keine.** Läuft auf jedem Windows-x64-Rechner, auch ohne installiertes .NET. Empfohlen für die meisten Nutzer. |
+| `heiconvert-<Version>-win-x64-framework-dependent.exe` | ~27 MB | Es muss bereits die [.NET 8 Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) installiert sein. Kleinerer Download, sonst identisches Verhalten. |
 
 ## Verwendung über die Kommandozeile
 
@@ -60,12 +67,19 @@ Der Standardwert `95` ist bewusst gewählt: In Benchmarks blieb die Kodierzeit �
 | `HeicConverter.cs` | Kernlogik: Dateisuche, Formaterkennung, Konvertierung |
 | `heiconvert.Tests/` | xUnit-Testprojekt mit automatisierten Regressionstests |
 | `Beispiel Bilder/` | Echte Beispiel-HEIC-Fotos zum Ausprobieren (bewusst mit Leerzeichen im Ordner-/Dateinamen) |
-| `publish/heiconvert.exe` | Fertig gebaute, self-contained Single-File-EXE für Windows x64 |
+| `.github/workflows/ci.yml` | Baut & testet bei jedem Push/PR auf `master` |
+| `.github/workflows/release.yml` | Erstellt bei jedem Versions-Tag (`vX.Y.Z`) ein GitHub Release mit beiden EXE-Varianten — nur wenn die Tests grün sind |
 
-### Neu bauen
+### Manuell bauen
 
+Self-contained (ohne .NET-Voraussetzung):
 ```
 dotnet publish heiconvert.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o publish
+```
+
+Framework-dependent (benötigt installierte .NET 8 Runtime, kleinerer Download):
+```
+dotnet publish heiconvert.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
 ```
 
 ### Tests ausführen
@@ -74,3 +88,14 @@ dotnet publish heiconvert.csproj -c Release -r win-x64 --self-contained true -p:
 cd heiconvert.Tests
 dotnet test
 ```
+
+### Neue Version veröffentlichen
+
+Ein Release wird automatisch erstellt, sobald ein Tag im Format `vX.Y.Z` gepusht wird — **aber nur, wenn die Tests in der GitHub-Actions-Pipeline erfolgreich durchlaufen**. Schlagen die Tests fehl, wird kein Release erstellt.
+
+```
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+Der Fortschritt lässt sich unter [Actions](https://github.com/ciybe-ai/heiconvert/actions) verfolgen, das fertige Release erscheint danach unter [Releases](https://github.com/ciybe-ai/heiconvert/releases).

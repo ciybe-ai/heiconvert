@@ -1,0 +1,72 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore heiconvert.Tests/heiconvert.Tests.csproj
+
+      - name: Test
+        run: dotnet test heiconvert.Tests/heiconvert.Tests.csproj --configuration Release --no-restore --verbosity normal
+
+  release:
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Version aus Tag ableiten
+        id: version
+        shell: bash
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Self-contained EXE bauen (ohne .NET-Voraussetzung)
+        run: >
+          dotnet publish heiconvert.csproj -c Release -r win-x64 --self-contained true
+          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true
+          -p:Version=${{ steps.version.outputs.version }}
+          -o publish-selfcontained
+
+      - name: Framework-dependent EXE bauen (benötigt installierte .NET 8 Runtime)
+        run: >
+          dotnet publish heiconvert.csproj -c Release -r win-x64 --self-contained false
+          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:Version=${{ steps.version.outputs.version }}
+          -o publish-framework-dependent
+
+      - name: Artefakte umbenennen
+        shell: bash
+        run: |
+          mkdir -p release-assets
+          cp "publish-selfcontained/heiconvert.exe" "release-assets/heiconvert-${{ steps.version.outputs.version }}-win-x64-selfcontained.exe"
+          cp "publish-framework-dependent/heiconvert.exe" "release-assets/heiconvert-${{ steps.version.outputs.version }}-win-x64-framework-dependent.exe"
+
+      - name: GitHub Release erstellen
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            "release-assets/heiconvert-${{ steps.version.outputs.version }}-win-x64-selfcontained.exe" \
+            "release-assets/heiconvert-${{ steps.version.outputs.version }}-win-x64-framework-dependent.exe" \
+            --title "heiconvert $GITHUB_REF_NAME" \
+            --generate-notes
