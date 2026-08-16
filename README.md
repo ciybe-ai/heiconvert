@@ -2,6 +2,8 @@
 
 Ein einfacher, eigenständiger Windows-Konverter, der HEIC/HEIF-Bilder (das Format, das iPhones und viele Android-Handys für Fotos verwenden) rekursiv in JPEG umwandelt.
 
+> **Hinweis:** Code, Workflows und Dokumentation dieses Projekts wurden größtenteils mit KI-Unterstützung (Claude) erstellt. Die Software wird ohne jegliche Gewährleistung bereitgestellt — keine Haftung für Datenverlust, fehlerhafte Konvertierungen oder sonstige Schäden durch die Nutzung. Siehe auch den Gewährleistungsausschluss in der [LICENSE](LICENSE). Nutzung auf eigene Verantwortung.
+
 ## Schnellstart
 
 1. Aktuelle EXE von der [Releases-Seite](https://github.com/ciybe-ai/heiconvert/releases) herunterladen (siehe unten, welche Variante).
